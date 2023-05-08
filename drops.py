@@ -12,13 +12,13 @@ import pickle
 import hashlib
 import re
 
-os.environ["OPENAI_API_KEY"] = "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"
-now=datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-openai.api_key = os.getenv("OPENAI_API_KEY")
-api = API("4ead2c43-9c32-431f-b6db-13d85e251407")
-raindrop_collection_id=33164591
 
-file_name = 'tags-20230425205156.pkl' #f'tags-{now}.pkl' # CHANGE ME TO LOAD EXISTING FILE
+now=datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+openai.api_key = os.environ["OPENAI_API_KEY"]
+api = API(os.environ["RAINDROP_KEY"])
+raindrop_collection_id=os.environ["RAINDROP_COLLECTION_ID"] # Collection ID to process
+
+file_name = f'tags-{now}.pkl' # CHANGE ME TO LOAD EXISTING FILE
 
 @dataclass
 class Tag:
@@ -124,10 +124,9 @@ for batch in more_itertools.batched(drops,15):
 
     with open(file_name, 'wb') as file:
         pickle.dump(tags, file)
-        # print(f'Object successfully saved to "{file_name}", with {len(tags)} items')
 
 for k,v in tags.items():
     if v.label != '':
         print(f'Updating tag "{v.article}" to: {v.label}')
         Raindrop.update(api, v.drop_id, tags=[v.label])
-        time.sleep(0.2)
+        time.sleep(0.5)
